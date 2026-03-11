@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <style>
+            body h1{
+                text-align: left;
+                background-color: tomato;
+            }
+            form {
+                text-align: center;
+                font-family: monospace;
+                color: #333;
+                font-size: larger;
+                border-radius: 20px;
+            }
+            .login-box {
+                text-align: center;
+                border: 2px solid #333;
+                width:300px;
+                margin: 100px auto;
+                border-radius: 10px;
+                text-align: center;
+                background-color: white;
+                font-style: bold;
+                font-family: monospace;
+                box-sizing: border-box;
+            }
+            .login-box h2 {
+                background-color: black;
+                color: white;
+                padding: 10px;
+                margin-top: 0;
+                border-radius: 8px;
+                font-family: monospace;
+            }
+            .login-box label {
+                display: block;
+                margin: 10px 0 5px;
+                font-family: monospace;
+                font: bold;
+            }   
+            .login-box input {
+                width: 90%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                font-weight: bold;
+                font-family: monospace;
+            }
+            .login-box button {
+                width: 100%;
+                padding: 20px;
+                background-color: tomato;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-style: bold;
+                font-family: monospace;
+            }
+            .logo {
+                position: relative;
+                text-align: left;
+                background-color: tomato;
+                padding: 10px;
+            }
+            .img {
+                display: block;
+                margin-left: 10px;
+                size: 200px;
+            }
+            .title {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                width: 80px;
+                opacity: 1.0;
+                color:white;
+                font-style: bold;
+            }
+            .logo h1 {
+                font-size: x-large;
+                margin-left: 120px;
+                margin-bottom: 0;
+            }
+        
+            .tagline  {
+                font-size: medium;
+                color:white;
+                font-style: sans-serif;
+                margin-left: 120px;
+                white-space: nowrap;
+            }   
+            .register {
+                text-align: center;
+                margin-inline-start: 10px;
+                background-color: white;
+            }
+                .register button {
+                    padding: 10px 20px;
+                    background-color: tomato;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-style: bold;
+                    font-family: monospace;
+                    margin-bottom:5px;
+                }
+            .left-top, .left-bottom, .right-top, .right-bottom {
+                position: absolute;
+                border: 2px solid #333;
+                border-radius: 10px;
+                background-color: white;
+                text-align: center;
+                font-family: monospace;
+                width: 160px;
+            }
+            .left-top{
+
+                top: 150px;
+                left:20px;
+                width: 300px;
+            
+            }
+            .left-bottom{
+
+                bottom:20px;
+                left:20px;
+                width: 300px;
+        
+
+            }
+            .right-top {
+        
+                top:150px;
+                right:20px;
+                width: 300px;
+                
+            }
+            .right-bottom {
+
+                bottom:20px;
+                right:20px;
+                width: 300px;
+
+                
+            }
+            .left-top img, .left-bottom img, .right-top img, .right-bottom img {
+                width: 100%;
+                height: auto;
+                border-radius: 10px;
+            }
+            .left-top h3, .left-bottom h3, .right-top h3, .right-bottom h3 {
+                margin: 10px 0;
+                font-size: large;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>  
+        <div class="logo">
+            <img src="{{url_for('static', filename='download (1).jpg')}}" alt="Brahma Logo" width="100" height="100" style="background-color: tomato;">
+
+             <div class="title">  
+                 <h1> Brahma </h1>
+                 <p class="tagline">The chaturmukha</p>
+             </div>
+        </div>
+        <div class="left-top">
+            <h3> Nutrition</h3>
+            <img src="{{url_for('static',filename='nutrition.jpg')}}">
+        </div>
+        <div class="left-bottom">
+            <h3> Physical Activity</h3>
+            <img src="{{url_for('static',filename='physical.jpg')}}">
+        </div>
+        <div class="right-top">
+            <h3> Sleep</h3> 
+            <img src="{{url_for('static',filename='Sleep.jpg')}}" >
+        </div>
+        <div class="right-bottom">
+            <h3> Stress Management</h3>
+            <img src="{{url_for('static',filename='stress.jpg')}}">
+        </div>
+        <div class="login-box">
+        <h2>Welcome</h2>
+        <form action="/login" method="post">
+            <label for="username">👤Username</label>
+            <input type="text" id="username" name="username" required>
+            <br><br>
+            <label for="password">🔐Password</label>
+            <input type="password" id="password" name="password" required>
+            <br><br>
+            <button type="submit">Login</button>
+            
+        </div>
+        </form>
+        </div>
+        <div class="register">
+             <button onclick="window.location.href='/register'">Don't have an account? Register</button>
+        </div>
+    </body>
+
+</html>
