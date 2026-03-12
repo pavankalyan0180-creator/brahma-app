@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brahma</title>
+    <style>
+            .logo {
+                display: flex;
+                text-align: left;
+                background-color: tomato;
+                padding: 10px;
+                gap: 20px;
+                position: relative;
+            }
+            .img {
+                width: 100px;
+                height: 100px;
+                flex-shrink: 0;
+            }
+            .logo-text {
+                display: flex;
+                flex-direction: column;
+                margin: 0;
+            }
+            .title {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                width: 80px;
+                opacity: 1.0;
+                color:white;
+                font-style: bold;
+            }
+            .logo h1 {
+                font-size: x-large;
+                margin: 0;
+                color:white;
+                font-style: bold;
+
+            }
+        
+            .tagline  {
+                font-size: medium;
+                color:white;
+                font-style: sans-serif;
+               margin: 0;
+                white-space: nowrap;
+            }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="{{url_for('static',filename='download (1).jpg')}}" class="img">
+        <div class="logo-text">
+        <h1>Brahma</h1>
+        <p class="tagline"> The Chaturmukha</p>
+        </div>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+  
+</body>
+</html>
