@@ -1,10 +1,56 @@
 {% extends "base.html" %}   
     {% block content %}
+   <style>
+        .Registration-box {
+            width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .Registration-box h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .Registration-box label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .Registration-box input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .Registration-box button {
+            width: 100%;
+            padding: 10px;
+            background-color: tomato;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .Registration-box button:hover {
+            background-color: darkred;
+        }
+        .login {
+            text-align: center;
+            margin-top: 10px;
+        }
+        .login button {
+            background-color: transparent;
+            color: tomato;
+            border: none;
+            cursor: pointer;
+        }
+        .login button:hover {
+            text-decoration: underline;
+        }
+    </style>
    
-    <div class="logo">
-        <h1>Registration</h1>
-        <p class="tagline"> Register Your Account</p>
-    </div>
     <div class="Registration-box">
         <h2>Registration</h2>
         <form method="post" action="/register">
