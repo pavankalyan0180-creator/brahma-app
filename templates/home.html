@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .carousel {
+        width: 80%;
+        margin: auto;
+        overflow: hidden;
+        position: relative;
+    }
+    .carousel-track {
+        display: flex;
+        gap: 25px;
+        transition: transform 0.5s;
+    }
+    .card{
+        min-width: 220px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        text-align: center;
+        padding: 10px;
+    }
+    .card img {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .nav{
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        z-index: 1;
+        font-size: 20px;
+        border-radius: 50%;
+    }
+    .left {
+        left: -20px;
+    }
+    .right {
+        right: -20px;
+    }
+    .layout {
+        display: flex;
+        margin-top: 30px;
+    }
+    .sidebar {
+        width: 200px;
+
+        padding: 20px;
+        border-radius: 5px;
+        color:white;
+    }
+    .sidebar h3 {
+        margin-top: 0;
+        color: #333;
+        
+    }
+    .menu-btn {
+        display: block;
+        margin: 10px 0;
+        color: #333;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .menu-btn:hover {
+        color: tomato;
+    }
+    .main-content {
+        flex: 1;
+        padding: 20px;
+    }
+    .main-content{
+        border-radius: 5px;
+        text-align: left;
+    }
+    .health-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin: 40px auto;
+    }
+    .card {
+        width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        background-color: #f9f9f9;
+        text-align: left;
+    }
+    .card img {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .card h3 {
+        margin-top: 10px;
+    }
+    .overview {
+        color: #555;
+    }
+</style>
+
+<div class="layout">
+    <div class="sidebar">
+        <h3>🏠Menu</h3>
+        <a href="profile" class="menu-btn">👤Profile </a>
+        <a href="healthcheckins" class="menu-btn">🏥Health Check-ins</a>
+        <a href="consultation " class="menu-btn">👨🏻‍⚕️Consultation</a>
+        <a href="logout" class="menu-btn">📴Logout</a>
+    </div>
+    <div class="main-content">
+        <h2>Welcome to Brahma</h2>
+    </div>
+</div>
+
+<div class="carousel">
+  <button class="nav left" onclick="slideLeft()">&#10094;</button>
+  <div class="carousel-track" id="track">
+      <div class="card">
+             <h3> Nutrition</h3>
+             <img src="{{url_for('static',filename='nutrition.jpg')}}">
+        </div>
+
+        <div class="card">
+             <h3>Fitness</h3>
+             <img src="{{url_for('static',filename='physical.jpg')}}">
+        </div>
+
+        <div class="card">
+             <h3>Sleep</h3>
+             <img src="{{url_for('static',filename='sleep.jpg')}}">
+        </div>
+
+        <div class="card">
+             <h3>Stress Management</h3>
+              <img src="{{url_for('static',filename='stress.jpg')}}">
+         </div>
+        
+  </div>
+
+  <button class="nav right" onclick="slideRight()">&#10095;</button>
+</div>
+
+<div class="health-container">
+    <div class="card">
+        <img src="{{url_for('static',filename='nutrition.jpg')}}">
+        <h3>Nutrition</h3>
+         <p class="overview">{{ Nutrition_data }}</p>
+    </div>
+    <div class="card">
+        <img src="{{url_for('static',filename='physical.jpg')}}">
+        <h3>Physical Fitness</h3>
+        <p class="overview">{{ Physical_data }}</p>
+    </div>
+    <div class="card">
+        <img src="{{url_for('static',filename='sleep.jpg')}}">
+        <h3>Sleep</h3>
+        <p class="overview">{{ Sleep_data }}</p>
+    </div>
+    <div class="card">
+        <img src="{{url_for('static',filename='stress.jpg')}}">
+        <h3>Stress Management</h3>
+        <p class="overview">{{ Stress_data }}</p>
+    </div>
+
+</div>
+<script>
+    let position = 0;
+    const track = document.getElementById('track');
+    const cardWidth = 320; 
+    
+    function slideRight(){
+        position += cardWidth;
+        track.style.transform = "translateX(-"+position+"px)";
+    }
+    function slideLeft(){
+        position -= cardWidth;
+        if (position < 0){
+            position     = 0;
+        }
+        track.style.transform ="translateX(-"+position+"px)"
+    }
+</script>
+{% endblock %}

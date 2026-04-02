@@ -1,5 +1,6 @@
 from flask import *
 import sqlite3
+import io
 
 app=Flask(__name__)
 
@@ -26,7 +27,7 @@ def create_db():
 create_db()
 
 @app.route('/')
-def home():
+def index():
     return render_template('login.html')
 
 @app.route('/register',methods=["GET","POST"])
@@ -74,29 +75,39 @@ def login():
         if user:
             session['user_id'] = user[0]
             session['username'] = user[3]
-            return redirect('/dashboard')
+            return redirect('/home')
         else:
             return render_template('login.html', error="Invalid username or password")
         
     return render_template('login.html')
 
-@app.route('/dashboard')
-def dashboard():
+@app.route('/home')
+def home():
     if 'user_id' not in session:
         return redirect('/login')
-    return render_template('dashboard.html')
+    with io.open ('static/Nutrition.txt','r',encoding='utf-8') as file:
+        Nutrition_data=file.read()
+    with io.open ('static/physical.txt','r',encoding='utf-8') as file:
+        Physical_data=file.read()
+    with io.open('static/Sleep.txt','r',encoding='utf-8')as file:
+        Sleep_data=file.read()
+    with io.open('static/Stress-management.txt','r',encoding='utf-8') as file:
+        Stress_data=file.read()
+    return render_template('home.html',Nutrition_data=Nutrition_data, Physical_data=Physical_data, Sleep_data=Sleep_data, Stress_data=Stress_data)
 
-@app.route('/patients')
-def patients():
-    if 'user_id' not in session:
-        return redirect('/login')
-    return render_template('patients.html')
 
-@app.route('/medication')
-def medication():
+
+@app.route('/consultation')
+def consultation():
     if 'user_id' not in session:
         return redirect('/login')
-    return render_template('medication.html')
+    return render_template('consultation.html')
+
+@app.route('/profile')
+def profile():
+    if 'user_id' not in session:
+        return redirect('/login')
+    return render_template('profile.html')
 
 @app.route('/logout')
 def logout():
@@ -104,4 +115,4 @@ def logout():
     return redirect('/')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0",port=5000)
