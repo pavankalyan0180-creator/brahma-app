@@ -1,7 +1,7 @@
 from flask import *
 import sqlite3
 import io
-
+import os
 app=Flask(__name__)
 
 app.secret_key='your_secret_key'
@@ -113,6 +113,9 @@ def profile():
 def logout():
     session.clear()
     return redirect('/')
+
+db_password = os.getenv('DB_PASSWORD')
+secret_key = os.getenv('SECRET_KEY')
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0",port=5000)
