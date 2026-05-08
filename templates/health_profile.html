@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .profile-page {
+        max-width: 1100px;
+        margin: 35px auto;
+        padding: 0 20px;
+    }
+
+    .profile-header {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        border-left: 6px solid tomato;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 25px;
+    }
+
+    .profile-header h2 {
+        margin: 0 0 10px;
+        color: #333;
+    }
+
+    .profile-header p {
+        margin: 0;
+        color: #555;
+        line-height: 1.6;
+    }
+
+    .profile-form {
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 25px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 15px;
+        outline: none;
+        background-color: white;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        border-color: tomato;
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .full-width {
+        grid-column: 1 / 3;
+    }
+
+    .submit-area {
+        margin-top: 25px;
+        text-align: right;
+    }
+
+    .submit-btn {
+        background-color: tomato;
+        color: white;
+        border: none;
+        padding: 13px 28px;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .submit-btn:hover {
+        background-color: #e2472f;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .full-width {
+            grid-column: 1;
+        }
+
+        .submit-area {
+            text-align: center;
+        }
+
+        .submit-btn {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="profile-page">
+    <div class="profile-header">
+        <h2>Set Up Your Health Profile</h2>
+        <p>
+            Tell Brahma about your body, lifestyle, habits, sleep, food pattern, and stress level.
+            This profile will help the app give better nutrition, fitness, sleep, and stress guidance.
+        </p>
+    </div>
+
+    <form method="POST" action="/profile-setup" class="profile-form">
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" name="age" min="1" max="120" value="{{ profile['age'] if profile else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Gender</label>
+                <select name="gender" required>
+                    <option value="">Select gender</option>
+                    <option value="male" {% if profile and profile['gender'] == 'male' %}selected{% endif %}>Male</option>
+                    <option value="female" {% if profile and profile['gender'] == 'female' %}selected{% endif %}>Female</option>
+                    <option value="other" {% if profile and profile['gender'] == 'other' %}selected{% endif %}>Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Height in cm</label>
+                <input type="number" step="0.1" name="height" value="{{ profile['height'] if profile else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Weight in kg</label>
+                <input type="number" step="0.1" name="weight" value="{{ profile['weight'] if profile else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Main Goal</label>
+                <select name="goal" required>
+                    <option value="">Select goal</option>
+                    <option value="fat_loss" {% if profile and profile['goal'] == 'fat_loss' %}selected{% endif %}>Fat Loss</option>
+                    <option value="muscle_gain" {% if profile and profile['goal'] == 'muscle_gain' %}selected{% endif %}>Muscle Gain</option>
+                    <option value="better_sleep" {% if profile and profile['goal'] == 'better_sleep' %}selected{% endif %}>Better Sleep</option>
+                    <option value="reduce_stress" {% if profile and profile['goal'] == 'reduce_stress' %}selected{% endif %}>Reduce Stress</option>
+                    <option value="general_health" {% if profile and profile['goal'] == 'general_health' %}selected{% endif %}>General Health</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Activity Level</label>
+                <select name="activity_level" required>
+                    <option value="">Select activity level</option>
+                    <option value="low" {% if profile and profile['activity_level'] == 'low' %}selected{% endif %}>Low</option>
+                    <option value="moderate" {% if profile and profile['activity_level'] == 'moderate' %}selected{% endif %}>Moderate</option>
+                    <option value="active" {% if profile and profile['activity_level'] == 'active' %}selected{% endif %}>Active</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Sleep Hours Per Day</label>
+                <input type="number" step="0.5" name="sleep_hours" value="{{ profile['sleep_hours'] if profile else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>Stress Level</label>
+                <select name="stress_level" required>
+                    <option value="">Select stress level</option>
+                    <option value="low" {% if profile and profile['stress_level'] == 'low' %}selected{% endif %}>Low</option>
+                    <option value="medium" {% if profile and profile['stress_level'] == 'medium' %}selected{% endif %}>Medium</option>
+                    <option value="high" {% if profile and profile['stress_level'] == 'high' %}selected{% endif %}>High</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Food Habit</label>
+                <input type="text" name="food_habit" value="{{ profile['food_habit'] if profile else '' }}" placeholder="Example: vegetarian, junk food, high sugar">
+            </div>
+
+            <div class="form-group">
+                <label>Water Intake Per Day in Liters</label>
+                <input type="number" step="0.1" name="water_intake" value="{{ profile['water_intake'] if profile else '' }}" placeholder="Example: 2.5">
+            </div>
+
+            <div class="form-group">
+                <label>Smoking</label>
+                <select name="smoking">
+                    <option value="no" {% if not profile or profile['smoking'] == 'no' %}selected{% endif %}>No</option>
+                    <option value="yes" {% if profile and profile['smoking'] == 'yes' %}selected{% endif %}>Yes</option>
+                    <option value="occasionally" {% if profile and profile['smoking'] == 'occasionally' %}selected{% endif %}>Occasionally</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Alcohol</label>
+                <select name="alcohol">
+                    <option value="no" {% if not profile or profile['alcohol'] == 'no' %}selected{% endif %}>No</option>
+                    <option value="yes" {% if profile and profile['alcohol'] == 'yes' %}selected{% endif %}>Yes</option>
+                    <option value="occasionally" {% if profile and profile['alcohol'] == 'occasionally' %}selected{% endif %}>Occasionally</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Medical Conditions</label>
+                <textarea name="medical_conditions" placeholder="Example: diabetes, blood pressure, asthma, thyroid, none">{{ profile['medical_conditions'] if profile else '' }}</textarea>
+            </div>
+
+        </div>
+
+        <div class="submit-area">
+            <button type="submit" class="submit-btn">Save Health Profile</button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

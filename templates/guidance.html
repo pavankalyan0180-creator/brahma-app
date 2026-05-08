@@ -1,0 +1,423 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .guidance-page {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+    .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        color: tomato;
+        font-weight: bold;
+        text-decoration: none;
+    }
+    .hero-panel {
+        display: grid;
+        grid-template-columns: 1.1fr 1.4fr;
+        gap: 22px;
+        align-items: stretch;
+        border: 1px solid #ccc;
+        border-left: 6px solid tomato;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 18px;
+        margin-bottom: 22px;
+    }
+    .hero-panel img {
+        width: 100%;
+        height: 260px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+    .hero-content h2 {
+        margin: 0 0 10px;
+        color: #333;
+    }
+    .hero-content p {
+        color: #555;
+        line-height: 1.6;
+        margin: 0 0 12px;
+    }
+    .profile-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+    }
+    .tag {
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        background-color: white;
+        color: #333;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+    .guidance-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+    .guidance-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 20px;
+    }
+    .guidance-card h3 {
+        margin: 0 0 14px;
+        color: #333;
+    }
+    .visual-board {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        margin-bottom: 22px;
+    }
+    .visual-board h3 {
+        margin: 0 0 14px;
+        color: #333;
+    }
+    .visual-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
+    .visual-tile {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        padding: 14px;
+        min-height: 110px;
+    }
+    .visual-tile strong {
+        display: block;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    .visual-tile span {
+        color: #555;
+        line-height: 1.5;
+        font-size: 14px;
+    }
+    .plate-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 20px;
+        align-items: center;
+    }
+    .plate {
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+        margin: auto;
+        border: 10px solid white;
+        box-shadow: 0 0 0 1px #ccc, 0 10px 22px rgba(0, 0, 0, 0.12);
+        background: conic-gradient(#5aa469 0 50%, #f4b942 50% 75%, tomato 75% 100%);
+        position: relative;
+    }
+    .plate-center {
+        position: absolute;
+        inset: 74px;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        border-radius: 50%;
+        background-color: white;
+        color: #333;
+        font-weight: bold;
+        font-size: 14px;
+        padding: 10px;
+    }
+    .legend-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        color: #555;
+    }
+    .legend-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .green { background-color: #5aa469; }
+    .yellow { background-color: #f4b942; }
+    .red { background-color: tomato; }
+    .timeline {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
+    .timeline-step {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        padding: 14px;
+        position: relative;
+    }
+    .timeline-step b {
+        display: inline-grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: tomato;
+        color: white;
+        margin-bottom: 10px;
+    }
+    .breathing-box {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+    }
+    .breath-step {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        padding: 18px 14px;
+        text-align: center;
+    }
+    .breath-step strong {
+        display: block;
+        color: tomato;
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+    .guidance-list {
+        margin: 0;
+        padding-left: 20px;
+        color: #555;
+        line-height: 1.7;
+    }
+    .action-list {
+        display: grid;
+        gap: 10px;
+    }
+    .action-item {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        padding: 12px;
+        color: #555;
+        line-height: 1.5;
+    }
+    .action-item strong {
+        display: inline-grid;
+        place-items: center;
+        width: 26px;
+        height: 26px;
+        margin-right: 8px;
+        border-radius: 50%;
+        background-color: tomato;
+        color: white;
+        font-size: 13px;
+    }
+    .score-row {
+        margin-bottom: 12px;
+    }
+    .score-top {
+        display: flex;
+        justify-content: space-between;
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 6px;
+    }
+    .score-bar {
+        height: 10px;
+        background-color: #e7e7e7;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    .score-fill {
+        height: 100%;
+        background-color: tomato;
+        border-radius: 20px;
+    }
+    .general-text {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        color: #555;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+    .general-text h3 {
+        color: #333;
+        margin-top: 0;
+    }
+    .health-note {
+        color: #777;
+        font-size: 14px;
+        margin-top: 14px;
+    }
+    @media (max-width: 800px) {
+        .hero-panel,
+        .plate-layout,
+        .guidance-grid {
+            grid-template-columns: 1fr;
+        }
+        .visual-grid,
+        .timeline,
+        .breathing-box {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .hero-panel img {
+            height: 220px;
+        }
+    }
+    @media (max-width: 520px) {
+        .visual-grid,
+        .timeline,
+        .breathing-box {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="guidance-page">
+    <a href="/home" class="back-link">Back to Home</a>
+
+    <div class="hero-panel">
+        <img src="{{ url_for('static', filename=page.image) }}">
+        <div class="hero-content">
+            <h2>{{ page.title }}</h2>
+            <p>{{ guidance.focus }}</p>
+            <p>
+                This guidance is personalized from your saved health profile and should be used
+                as lifestyle support, not as a medical diagnosis.
+            </p>
+            <div class="profile-tags">
+                <span class="tag">Goal: {{ profile['goal'].replace('_', ' ').title() }}</span>
+                <span class="tag">BMI: {{ guidance.analysis.bmi }} - {{ guidance.analysis.bmi_status }}</span>
+                <span class="tag">Activity: {{ profile['activity_level'].title() }}</span>
+                <span class="tag">Sleep: {{ profile['sleep_hours'] }} hrs</span>
+                <span class="tag">Stress: {{ profile['stress_level'].title() }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="visual-board">
+        {% if page.category == 'nutrition' %}
+        <h3>Balanced Plate Visual</h3>
+        <div class="plate-layout">
+            <div class="plate">
+                <div class="plate-center">Simple Meal Plate</div>
+            </div>
+            <div>
+                <div class="legend-row"><span class="legend-dot green"></span>50% vegetables and fruits</div>
+                <div class="legend-row"><span class="legend-dot yellow"></span>25% grains like rice, roti, oats, or millets</div>
+                <div class="legend-row"><span class="legend-dot red"></span>25% protein like dal, eggs, paneer, tofu, fish, or chicken</div>
+                <p class="health-note">Use this visual for lunch and dinner. Adjust quantity slowly based on your goal and hunger.</p>
+            </div>
+        </div>
+        <div class="visual-grid" style="margin-top: 16px;">
+            <div class="visual-tile"><strong>Breakfast</strong><span>Protein plus slow carbs within 1 to 2 hours after waking.</span></div>
+            <div class="visual-tile"><strong>Lunch</strong><span>Full balanced plate with vegetables, protein, and grains.</span></div>
+            <div class="visual-tile"><strong>Snack</strong><span>Fruit, curd, sprouts, nuts, or roasted chana.</span></div>
+            <div class="visual-tile"><strong>Dinner</strong><span>Lighter meal 2 to 3 hours before sleep.</span></div>
+        </div>
+        {% elif page.category == 'physical' %}
+        <h3>Weekly Movement Map</h3>
+        <div class="visual-grid">
+            <div class="visual-tile"><strong>Day 1</strong><span>Walk or cardio for 20 to 30 minutes.</span></div>
+            <div class="visual-tile"><strong>Day 2</strong><span>Strength basics: squats, wall pushups, bridges.</span></div>
+            <div class="visual-tile"><strong>Day 3</strong><span>Walk plus stretching or mobility.</span></div>
+            <div class="visual-tile"><strong>Day 4</strong><span>Rest, light walk, or easy movement.</span></div>
+            <div class="visual-tile"><strong>Day 5</strong><span>Cardio or brisk walking.</span></div>
+            <div class="visual-tile"><strong>Day 6</strong><span>Strength training and core basics.</span></div>
+            <div class="visual-tile"><strong>Day 7</strong><span>Recovery, stretching, and planning next week.</span></div>
+            <div class="visual-tile"><strong>Rule</strong><span>Increase slowly. Consistency beats intensity.</span></div>
+        </div>
+        {% elif page.category == 'sleep' %}
+        <h3>Night Recovery Timeline</h3>
+        <div class="timeline">
+            <div class="timeline-step"><b>1</b><strong>Evening</strong><span>Reduce caffeine and heavy meals.</span></div>
+            <div class="timeline-step"><b>2</b><strong>60 Min Before</strong><span>Lower lights and reduce phone/laptop use.</span></div>
+            <div class="timeline-step"><b>3</b><strong>Bedtime</strong><span>Same sleep time, cool dark room, slow breathing.</span></div>
+            <div class="timeline-step"><b>4</b><strong>Morning</strong><span>Wake consistently and get sunlight.</span></div>
+        </div>
+        {% else %}
+        <h3>Stress Reset Visual</h3>
+        <div class="breathing-box">
+            <div class="breath-step"><strong>4</strong><span>Inhale slowly</span></div>
+            <div class="breath-step"><strong>4</strong><span>Hold gently</span></div>
+            <div class="breath-step"><strong>6</strong><span>Exhale slowly</span></div>
+            <div class="breath-step"><strong>5x</strong><span>Repeat rounds</span></div>
+        </div>
+        <div class="visual-grid" style="margin-top: 16px;">
+            <div class="visual-tile"><strong>Body</strong><span>Walk, stretch, relax shoulders.</span></div>
+            <div class="visual-tile"><strong>Mind</strong><span>Write the trigger and one small action.</span></div>
+            <div class="visual-tile"><strong>Space</strong><span>Take screen-free breaks.</span></div>
+            <div class="visual-tile"><strong>Support</strong><span>Talk to someone trusted when stress is heavy.</span></div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="guidance-grid">
+        <div class="guidance-card">
+            <h3>Personalized Suggestions</h3>
+            <ul class="guidance-list">
+                {% for recommendation in guidance.recommendations %}
+                <li>{{ recommendation }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="guidance-card">
+            <h3>Suggested Routine</h3>
+            <div class="action-list">
+                {% for item in guidance.routine %}
+                <div class="action-item"><strong>{{ loop.index }}</strong>{{ item }}</div>
+                {% endfor %}
+            </div>
+            <p class="health-note">
+                Start small. A routine followed daily is better than a perfect routine followed rarely.
+            </p>
+        </div>
+
+        <div class="guidance-card">
+            <h3>Your Lifestyle Scores</h3>
+            {% for item in guidance.analysis.scores %}
+            <div class="score-row">
+                <div class="score-top">
+                    <span>{{ item.name }}</span>
+                    <span>{{ item.score }}/100</span>
+                </div>
+                <div class="score-bar">
+                    <div class="score-fill" data-score="{{ item.score }}"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="guidance-card">
+            <h3>What To Watch</h3>
+            <ul class="guidance-list">
+                {% for suggestion in guidance.analysis.suggestions %}
+                <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="general-text">
+        <h3>General Knowledge</h3>
+        {{ general_text }}
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.score-fill').forEach(function(fill) {
+        fill.style.width = fill.dataset.score + '%';
+    });
+</script>
+
+{% endblock %}

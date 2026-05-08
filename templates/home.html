@@ -1,0 +1,720 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .feature-section {
+        max-width: 1100px;
+        margin: 10px auto 25px;
+        padding: 0 20px;
+    }
+    .feature-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 16px;
+        margin-bottom: 14px;
+    }
+    .feature-heading h2 {
+        margin: 0;
+        color: #333;
+    }
+    .feature-heading p {
+        margin: 0;
+        color: #555;
+        line-height: 1.4;
+        max-width: 560px;
+    }
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+    }
+    .feature-card {
+        display: flex;
+        align-items: flex-end;
+        position: relative;
+        min-height: 230px;
+        overflow: hidden;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        text-align: left;
+        padding: 0;
+        text-decoration: none;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover {
+        border-color: tomato;
+        transform: translateY(-5px);
+        box-shadow: 0 14px 26px rgba(0, 0, 0, 0.15);
+    }
+    .feature-card img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        transition: transform 0.25s;
+    }
+    .feature-card:hover img {
+        transform: scale(1.06);
+    }
+    .feature-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.28), rgba(0, 0, 0, 0.05));
+        z-index: 1;
+    }
+    .feature-content {
+        position: relative;
+        z-index: 2;
+        padding: 18px;
+        color: white;
+    }
+    .feature-card h3 {
+        margin: 0 0 8px;
+        color: white;
+        font-size: 22px;
+    }
+    .feature-card p {
+        margin: 0 0 12px;
+        color: #f1f1f1;
+        line-height: 1.4;
+        font-size: 14px;
+    }
+    .feature-link {
+        display: inline-block;
+        color: white;
+        font-weight: bold;
+        font-size: 14px;
+        border-bottom: 2px solid tomato;
+        padding-bottom: 3px;
+    }
+    .layout {
+        display: flex;
+        margin-top: 30px;
+    }
+    .sidebar {
+        width: 200px;
+
+        padding: 20px;
+        border-radius: 5px;
+        color:white;
+    }
+    .sidebar h3 {
+        margin-top: 0;
+        color: #333;
+        
+    }
+    .menu-btn {
+        display: block;
+        margin: 10px 0;
+        color: #333;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .menu-btn:hover {
+        color: tomato;
+    }
+    .main-content {
+        flex: 1;
+        padding: 20px;
+    }
+    .main-content{
+        border-radius: 5px;
+        text-align: left;
+    }
+    .health-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+        margin: 40px auto;
+    }
+    .card {
+        width: 1000px;
+        margin: 20px auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        background-color: #f9f9f9;
+        text-align: left;
+    }
+    .card img {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .card h3 {
+        margin-top: 10px;
+    }
+    .overview {
+        color: #555;
+    }
+    .analysis-dashboard {
+        max-width: 1100px;
+        margin: 25px auto;
+        padding: 0 20px;
+    }
+    .analysis-header {
+        border: 1px solid #ccc;
+        border-left: 6px solid tomato;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 22px;
+        margin-bottom: 18px;
+    }
+    .analysis-header h2 {
+        margin: 0 0 8px;
+        color: #333;
+    }
+    .analysis-header p {
+        margin: 0;
+        color: #555;
+        line-height: 1.5;
+    }
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
+    .dashboard-hero {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+    }
+    .analysis-panel {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 20px;
+    }
+    .analysis-panel h3 {
+        margin: 0 0 14px;
+        color: #333;
+    }
+    .score-circle-panel {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+    .score-circle {
+        width: 190px;
+        height: 190px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background: conic-gradient(tomato 0deg, #e7e7e7 0deg);
+        margin-bottom: 16px;
+    }
+    .score-circle-inner {
+        width: 138px;
+        height: 138px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        background-color: white;
+        border: 1px solid #ddd;
+    }
+    .score-circle-inner strong {
+        display: block;
+        color: tomato;
+        font-size: 36px;
+        line-height: 1;
+    }
+    .score-circle-inner span {
+        display: block;
+        margin-top: 6px;
+        color: #555;
+        font-size: 14px;
+    }
+    .score-number {
+        font-size: 42px;
+        font-weight: bold;
+        color: tomato;
+        margin: 0;
+    }
+    .score-label {
+        color: #555;
+        margin: 5px 0 14px;
+    }
+    .bmi-box {
+        display: flex;
+        gap: 18px;
+        align-items: center;
+    }
+    .bmi-value {
+        min-width: 95px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: white;
+        padding: 14px;
+    }
+    .bmi-value strong {
+        display: block;
+        font-size: 32px;
+        color: tomato;
+    }
+    .bmi-text {
+        color: #555;
+        line-height: 1.5;
+    }
+    .mini-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+    }
+    .mini-stat {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        padding: 12px;
+    }
+    .mini-stat span {
+        display: block;
+        color: #777;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+    .mini-stat strong {
+        color: #333;
+    }
+    .score-card-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+    .score-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 14px;
+    }
+    .score-card strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #333;
+    }
+    .score-card span {
+        color: tomato;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .score-row {
+        margin-bottom: 14px;
+    }
+    .score-top {
+        display: flex;
+        justify-content: space-between;
+        color: #333;
+        font-weight: bold;
+        margin-bottom: 6px;
+    }
+    .score-bar {
+        height: 10px;
+        background-color: #e7e7e7;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+    .score-fill {
+        height: 100%;
+        background-color: tomato;
+        border-radius: 20px;
+    }
+    .suggestion-list {
+        margin: 0;
+        padding-left: 18px;
+        color: #555;
+        line-height: 1.7;
+    }
+    .health-note {
+        margin-top: 14px;
+        color: #777;
+        font-size: 14px;
+    }
+    .checkin-dashboard {
+        max-width: 1100px;
+        margin: 25px auto;
+        padding: 0 20px;
+    }
+    .checkin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 16px;
+        border: 1px solid #ccc;
+        border-left: 6px solid tomato;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        margin-bottom: 18px;
+    }
+    .checkin-header h2 {
+        margin: 0 0 6px;
+        color: #333;
+    }
+    .checkin-header p {
+        margin: 0;
+        color: #555;
+    }
+    .checkin-btn {
+        display: inline-block;
+        background-color: tomato;
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 5px;
+        padding: 11px 16px;
+        white-space: nowrap;
+    }
+    .checkin-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+    .checkin-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 14px;
+    }
+    .checkin-card span {
+        display: block;
+        color: #777;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+    .checkin-card strong {
+        color: tomato;
+        font-size: 24px;
+    }
+    .latest-checkin {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 18px;
+    }
+    .latest-checkin h3 {
+        margin: 0 0 12px;
+        color: #333;
+    }
+    .latest-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    .latest-item {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        padding: 12px;
+    }
+    .latest-item span {
+        display: block;
+        color: #777;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+    .latest-item strong {
+        color: #333;
+    }
+    @media (max-width: 800px) {
+        .feature-heading {
+            display: block;
+        }
+        .feature-heading p {
+            margin-top: 6px;
+        }
+        .feature-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .dashboard-hero,
+        .analysis-grid {
+            grid-template-columns: 1fr;
+        }
+        .score-card-grid,
+        .mini-stats,
+        .checkin-grid,
+        .latest-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+        .checkin-header {
+            display: block;
+        }
+        .checkin-btn {
+            margin-top: 12px;
+        }
+        .bmi-box {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    @media (max-width: 520px) {
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+        .score-card-grid,
+        .mini-stats,
+        .checkin-grid,
+        .latest-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="layout">
+    <div class="sidebar">
+        <h3>🏠Menu</h3>
+        <a href="/profile" class="menu-btn">👤Profile </a>
+        <a href="/healthcheckins" class="menu-btn">🗒️Health Check-ins</a>
+        <!-- <a href="/consultation" class="menu-btn">👨🏻‍⚕️Consultation</a> -->
+
+        <a href="/logout" class="menu-btn">📴Logout</a>
+    </div>
+    <div class="main-content">
+        <h2>Welcome to Brahma</h2>
+    </div>
+</div>
+<div class="feature-section">
+    <div class="feature-heading">
+        <h2>Your Health Guides</h2>
+        <p>Open each guide for general knowledge plus advice based on your profile.</p>
+    </div>
+    <div class="feature-grid">
+        <a href="/nutrition" class="feature-card">
+            <img src="{{url_for('static',filename='nutrition.jpg')}}">
+            <div class="feature-content">
+                <h3>Nutrition</h3>
+                <p>Food, water, meal timing, and body fuel.</p>
+                <span class="feature-link">Open Guide</span>
+            </div>
+        </a>
+
+        <a href="/physical" class="feature-card">
+            <img src="{{url_for('static',filename='physical.jpg')}}">
+            <div class="feature-content">
+                <h3>Fitness</h3>
+                <p>Movement, strength, activity, and weekly routine.</p>
+                <span class="feature-link">Open Guide</span>
+            </div>
+        </a>
+
+        <a href="/sleep" class="feature-card">
+            <img src="{{url_for('static',filename='Sleep.jpg')}}">
+            <div class="feature-content">
+                <h3>Sleep</h3>
+                <p>Recovery, bedtime rhythm, and better rest habits.</p>
+                <span class="feature-link">Open Guide</span>
+            </div>
+        </a>
+
+        <a href="/stress" class="feature-card">
+            <img src="{{url_for('static',filename='stress.jpg')}}">
+            <div class="feature-content">
+                <h3>Stress</h3>
+                <p>Calm routines, breathing, breaks, and support.</p>
+                <span class="feature-link">Open Guide</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+{% if analysis %}
+<div class="analysis-dashboard">
+    <div class="analysis-header">
+        <h2>Your Lifestyle Analysis</h2>
+        <p>
+            Based on your health profile, Brahma gives you a clear picture of your body status,
+            lifestyle balance, and the next actions to improve.
+        </p>
+    </div>
+
+    <div class="dashboard-hero">
+        <div class="analysis-panel score-circle-panel">
+            <h3>Overall Lifestyle Score</h3>
+            <div class="score-circle" data-score="{{ analysis.overall_score }}">
+                <div class="score-circle-inner">
+                    <div>
+                        <strong>{{ analysis.overall_score }}</strong>
+                        <span>out of 100</span>
+                    </div>
+                </div>
+            </div>
+            <p class="score-label">
+                This score combines nutrition, physical activity, sleep, stress, and habits.
+            </p>
+        </div>
+
+        <div class="analysis-panel">
+            <h3>BMI Analysis</h3>
+            <div class="bmi-box">
+                <div class="bmi-value">
+                    <strong>{{ analysis.bmi }}</strong>
+                    BMI
+                </div>
+                <div class="bmi-text">
+                    <b>{{ analysis.bmi_status }}</b><br>
+                    {{ analysis.bmi_advice }}
+                </div>
+            </div>
+            <p class="health-note">
+                This is lifestyle guidance only, not a medical diagnosis.
+            </p>
+            <div class="mini-stats">
+                <div class="mini-stat">
+                    <span>Goal</span>
+                    <strong>{{ profile['goal'].replace('_', ' ').title() }}</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Activity</span>
+                    <strong>{{ profile['activity_level'].title() }}</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Sleep</span>
+                    <strong>{{ profile['sleep_hours'] }} hrs/day</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Stress</span>
+                    <strong>{{ profile['stress_level'].title() }}</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Water</span>
+                    <strong>{{ profile['water_intake'] or 0 }} L/day</strong>
+                </div>
+                <div class="mini-stat">
+                    <span>Guardian Status</span>
+                    <strong>{% if analysis.overall_score >= 80 %}Strong{% elif analysis.overall_score >= 60 %}Improving{% else %}Needs Focus{% endif %}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="score-card-grid">
+        {% for item in analysis.scores %}
+        <div class="score-card">
+            <strong>{{ item.name }}</strong>
+            <span>{{ item.score }}</span>
+            <div class="score-bar">
+                <div class="score-fill" data-score="{{ item.score }}"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="analysis-grid">
+        <div class="analysis-panel">
+            <h3>Today’s Focus</h3>
+            <p class="bmi-text">
+                {{ analysis.suggestions[0] }}
+            </p>
+            <p class="health-note">
+                Start with this one action today. Small daily wins make the profile stronger.
+            </p>
+        </div>
+
+        <div class="analysis-panel">
+            <h3>Recommended Next Actions</h3>
+            <ul class="suggestion-list">
+                {% for suggestion in analysis.suggestions %}
+                <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="checkin-dashboard">
+    <div class="checkin-header">
+        <div>
+            <h2>Daily Progress</h2>
+            <p>Your recent check-ins help Brahma understand your real lifestyle pattern.</p>
+        </div>
+        <a href="/healthcheckins" class="checkin-btn">Add Today’s Check-in</a>
+    </div>
+
+    {% if checkin_summary %}
+    <div class="checkin-grid">
+        <div class="checkin-card">
+            <span>Entries</span>
+            <strong>{{ checkin_summary.total }}</strong>
+        </div>
+        <div class="checkin-card">
+            <span>Avg Sleep</span>
+            <strong>{{ checkin_summary.avg_sleep }}</strong> hrs
+        </div>
+        <div class="checkin-card">
+            <span>Avg Water</span>
+            <strong>{{ checkin_summary.avg_water }}</strong> L
+        </div>
+        <div class="checkin-card">
+            <span>Avg Exercise</span>
+            <strong>{{ checkin_summary.avg_exercise }}</strong> min
+        </div>
+        <div class="checkin-card">
+            <span>Good Food Days</span>
+            <strong>{{ checkin_summary.good_food_days }}</strong>
+        </div>
+        <div class="checkin-card">
+            <span>High Stress Days</span>
+            <strong>{{ checkin_summary.high_stress_days }}</strong>
+        </div>
+    </div>
+
+    {% if latest_checkin %}
+    <div class="latest-checkin">
+        <h3>Latest Check-in: {{ latest_checkin['checkin_date'] }}</h3>
+        <div class="latest-grid">
+            <div class="latest-item">
+                <span>Sleep</span>
+                <strong>{{ latest_checkin['sleep_hours'] }} hrs</strong>
+            </div>
+            <div class="latest-item">
+                <span>Exercise</span>
+                <strong>{{ latest_checkin['exercise_minutes'] }} min</strong>
+            </div>
+            <div class="latest-item">
+                <span>Food</span>
+                <strong>{{ latest_checkin['food_quality'].title() }}</strong>
+            </div>
+            <div class="latest-item">
+                <span>Mood</span>
+                <strong>{{ latest_checkin['mood'].title() }}</strong>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <div class="latest-checkin">
+        <h3>No Check-ins Yet</h3>
+        <p class="bmi-text">
+            Add your first daily check-in to start tracking sleep, water, exercise, stress, mood, and food quality.
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+
+<script>
+    document.querySelectorAll('.score-fill').forEach(function(fill) {
+        fill.style.width = fill.dataset.score + '%';
+    });
+
+    document.querySelectorAll('.score-circle').forEach(function(circle) {
+        const score = Number(circle.dataset.score || 0);
+        const degrees = Math.max(0, Math.min(100, score)) * 3.6;
+        circle.style.background = 'conic-gradient(tomato ' + degrees + 'deg, #e7e7e7 0deg)';
+    });
+
+</script>
+{% endblock %}
