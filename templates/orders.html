@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+    .orders-page {
+        max-width: 1100px;
+        margin: 30px auto;
+        padding: 0 20px;
+    }
+    .hero {
+        border: 1px solid #ccc;
+        border-left: 6px solid tomato;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        margin-bottom: 18px;
+    }
+    .hero h2 {
+        margin: 0 0 8px;
+        color: #333;
+    }
+    .hero p {
+        margin: 0;
+        color: #555;
+        line-height: 1.5;
+    }
+    .orders-grid {
+        display: grid;
+        gap: 14px;
+    }
+    .order-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 16px;
+    }
+    .order-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+    .order-head h3 {
+        margin: 0;
+        color: #333;
+        font-size: 18px;
+    }
+    .badge {
+        display: inline-block;
+        font-size: 12px;
+        border-radius: 20px;
+        background-color: #efefef;
+        color: #444;
+        padding: 4px 8px;
+        margin-right: 6px;
+    }
+    .meta {
+        color: #555;
+        margin: 0 0 10px;
+        line-height: 1.5;
+    }
+    .open-btn {
+        display: inline-block;
+        text-decoration: none;
+        color: white;
+        background-color: tomato;
+        border-radius: 5px;
+        padding: 10px 14px;
+        font-weight: bold;
+    }
+    .empty {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+        padding: 20px;
+        color: #555;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="orders-page">
+    <div class="hero">
+        <h2>My Orders</h2>
+        <p>Track all external service and product orders started from Brahma. You can reopen links and continue any pending order.</p>
+    </div>
+
+    {% if orders %}
+    <div class="orders-grid">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-head">
+                <h3>{{ order['item_name'] }}</h3>
+                <span class="badge">{{ order['status'].title() }}</span>
+            </div>
+            <p class="meta">
+                Category: <b>{{ order['category'].title() }}</b><br>
+                Partner: <b>{{ order['partner'] }}</b><br>
+                City: <b>{{ order['city'] or 'N/A' }}</b><br>
+                Estimated amount: <b>{% if order['amount_estimate'] %}Rs. {{ order['amount_estimate'] }}{% else %}N/A{% endif %}</b><br>
+                Created at: <b>{{ order['created_at'] }}</b>
+            </p>
+            <a class="open-btn" href="{{ order['external_url'] }}" target="_blank" rel="noopener noreferrer">Open Partner Link</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        No orders yet. Use consultation quick links to start nutrition, fitness, stress, or sleep support orders.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

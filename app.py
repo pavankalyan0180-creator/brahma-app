@@ -2,7 +2,8 @@ from flask import *
 import sqlite3
 import io
 import os
-from datetime import date
+from datetime import date, datetime
+from urllib.parse import quote_plus
 app=Flask(__name__)
 
 app.secret_key='your_secret_key'
@@ -58,10 +59,193 @@ def create_db():
                   foreign key (user_id) references users(id)
                   )
                   ''')
+    conn.execute('''
+        create table if not exists consultations (
+                  id integer primary key autoincrement,
+                  user_id integer not null,
+                  category text not null,
+                  city text,
+                  pincode text,
+                  preferred_mode text,
+                  budget text,
+                  preferred_date text not null,
+                  preferred_time text not null,
+                  message text,
+                  status text not null default 'pending',
+                  created_at text not null,
+                  foreign key (user_id) references users(id)
+                  )
+                  ''')
+    conn.execute('''
+        create table if not exists orders (
+                  id integer primary key autoincrement,
+                  user_id integer not null,
+                  category text not null,
+                  item_name text not null,
+                  partner text not null,
+                  city text,
+                  amount_estimate real,
+                  external_url text not null,
+                  status text not null default 'created',
+                  created_at text not null,
+                  foreign key (user_id) references users(id)
+                  )
+                  ''')
     conn.commit()
     conn.close()
 
 create_db()
+
+def ensure_consultation_columns():
+    """Lightweight migration for old databases created before new fields."""
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(consultations)")
+    existing_columns = {row[1] for row in cursor.fetchall()}
+    required_columns = {
+        "city": "text",
+        "pincode": "text",
+        "preferred_mode": "text",
+        "budget": "text"
+    }
+    for column_name, column_type in required_columns.items():
+        if column_name not in existing_columns:
+            cursor.execute("ALTER TABLE consultations ADD COLUMN {} {}".format(column_name, column_type))
+    conn.commit()
+    conn.close()
+
+ensure_consultation_columns()
+
+def ensure_order_columns():
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(orders)")
+    existing_columns = {row[1] for row in cursor.fetchall()}
+    required_columns = {
+        "city": "text",
+        "amount_estimate": "real",
+        "status": "text"
+    }
+    for column_name, column_type in required_columns.items():
+        if column_name not in existing_columns:
+            cursor.execute("ALTER TABLE orders ADD COLUMN {} {}".format(column_name, column_type))
+    conn.commit()
+    conn.close()
+
+ensure_order_columns()
+
+SUPPORT_PROVIDERS = [
+    {"name": "NutriCare Wellness Clinic", "category": "nutrition", "city": "Chennai", "mode": "offline", "budget": "mid", "area": "T Nagar", "contact": "+91-90000-11111"},
+    {"name": "SmartPlate Diet Studio", "category": "nutrition", "city": "Bengaluru", "mode": "offline", "budget": "high", "area": "Indiranagar", "contact": "+91-90000-11112"},
+    {"name": "FitCore Trainer Network", "category": "physical", "city": "Chennai", "mode": "offline", "budget": "mid", "area": "Velachery", "contact": "+91-90000-11113"},
+    {"name": "ActiveMove Physio & Fitness", "category": "physical", "city": "Hyderabad", "mode": "offline", "budget": "high", "area": "Madhapur", "contact": "+91-90000-11114"},
+    {"name": "MindEase Psychology Center", "category": "stress", "city": "Chennai", "mode": "offline", "budget": "mid", "area": "Anna Nagar", "contact": "+91-90000-11115"},
+    {"name": "CalmBridge Counseling", "category": "stress", "city": "Bengaluru", "mode": "online", "budget": "mid", "area": "Online", "contact": "+91-90000-11116"},
+    {"name": "SleepReset Clinic", "category": "sleep", "city": "Hyderabad", "mode": "offline", "budget": "high", "area": "Banjara Hills", "contact": "+91-90000-11117"},
+    {"name": "NightRhythm Sleep Care", "category": "sleep", "city": "Chennai", "mode": "online", "budget": "mid", "area": "Online", "contact": "+91-90000-11118"}
+]
+
+CATEGORY_LINKS = {
+    "nutrition": [
+        {"label": "Healthy Food Delivery", "provider": "Swiggy", "item_name": "Healthy Meal Order", "amount_estimate": 450, "url": "https://www.swiggy.com/search?query=healthy%20food"},
+        {"label": "Healthy Food Delivery", "provider": "Zomato", "item_name": "Healthy Meal Order", "amount_estimate": 500, "url": "https://www.zomato.com/india/search?q=healthy%20food"},
+        {"label": "Grocery Essentials", "provider": "Blinkit", "item_name": "Nutrition Grocery Basket", "amount_estimate": 1200, "url": "https://blinkit.com"},
+    ],
+    "physical": [
+        {"label": "Home Workout Equipment", "provider": "Amazon", "item_name": "Home Workout Equipment", "amount_estimate": 2500, "url": "https://www.amazon.in/s?k=home+workout+equipment"},
+        {"label": "Home Workout Equipment", "provider": "Flipkart", "item_name": "Home Workout Equipment", "amount_estimate": 2200, "url": "https://www.flipkart.com/search?q=home+workout+equipment"},
+    ],
+    "stress": [
+        {"label": "Nearby Events & Activities", "provider": "BookMyShow", "item_name": "Stress Relief Activity Booking", "amount_estimate": 700, "url": "https://in.bookmyshow.com/explore/home/chennai"},
+        {"label": "Gaming & Hobby Gear", "provider": "Amazon", "item_name": "Gaming and Hobby Accessories", "amount_estimate": 1800, "url": "https://www.amazon.in/s?k=gaming+accessories"},
+    ],
+    "sleep": [
+        {"label": "Sleep Clinic Search", "provider": "Practo", "item_name": "Sleep Specialist Consultation", "amount_estimate": 1000, "url": "https://www.practo.com/doctors-for-sleep-medicine"},
+        {"label": "Massage & Wellness Centers", "provider": "Justdial", "item_name": "Massage and Wellness Support", "amount_estimate": 1500, "url": "https://www.justdial.com"},
+    ]
+}
+
+def city_search_url(provider, city, category):
+    city_text = (city or "").strip()
+    if not city_text:
+        return None
+
+    if provider == "Swiggy":
+        return "https://www.swiggy.com/search?query={}".format(
+            quote_plus("healthy food " + city_text)
+        )
+    if provider == "Zomato":
+        return "https://www.zomato.com/india/search?q={}".format(
+            quote_plus("healthy food " + city_text)
+        )
+    if provider == "BookMyShow":
+        return "https://in.bookmyshow.com/explore/home/{}".format(
+            quote_plus(city_text.lower())
+        )
+    if provider == "Justdial":
+        category_text = "massage centers"
+        if category == "sleep":
+            category_text = "sleep clinics"
+        return "https://www.justdial.com/{}/search?search={}".format(
+            quote_plus(city_text),
+            quote_plus(category_text)
+        )
+    return None
+
+def build_action_links(category, profile, city, checkin_summary):
+    links = [dict(item) for item in CATEGORY_LINKS.get(category, [])]
+    goal = (profile["goal"] if profile else "").lower()
+    stress_level = (profile["stress_level"] if profile else "").lower()
+    sleep_hours = float(profile["sleep_hours"]) if profile else 7.0
+    activity_level = (profile["activity_level"] if profile else "").lower()
+
+    for link in links:
+        city_url = city_search_url(link["provider"], city, category)
+        if city_url:
+            link["url"] = city_url
+
+        link["note"] = "General recommendation for your selected category."
+
+        if category == "nutrition":
+            if goal == "fat_loss":
+                link["item_name"] = "Low Calorie Healthy Meal Order"
+                link["note"] = "Selected for fat-loss support and better food quality."
+            elif goal == "muscle_gain":
+                link["item_name"] = "High Protein Meal or Grocery Order"
+                link["note"] = "Selected for muscle-gain support and protein focus."
+            else:
+                link["note"] = "Selected for balanced nutrition support."
+
+        elif category == "physical":
+            if activity_level == "low":
+                link["item_name"] = "Beginner Home Workout Kit"
+                link["note"] = "Selected for beginner-friendly exercise setup."
+            elif activity_level == "active":
+                link["item_name"] = "Advanced Training Equipment"
+                link["note"] = "Selected for active training progression."
+            else:
+                link["note"] = "Selected for regular weekly workout support."
+
+        elif category == "stress":
+            if stress_level == "high":
+                link["note"] = "Selected to reduce high stress with quick relief actions."
+            else:
+                link["note"] = "Selected for stress reset and mood support."
+
+        elif category == "sleep":
+            if sleep_hours < 6.5:
+                link["item_name"] = "Sleep Recovery Support"
+                link["note"] = "Selected for low-sleep recovery and bedtime support."
+            else:
+                link["note"] = "Selected for sleep quality maintenance."
+
+        if checkin_summary:
+            if category == "stress" and checkin_summary["high_stress_days"] >= 3:
+                link["note"] = "Prioritized because your recent check-ins show repeated high stress."
+            if category == "nutrition" and checkin_summary["good_food_days"] <= 2:
+                link["note"] = "Prioritized because recent food quality check-ins need improvement."
+
+    return links
 
 def calculate_health_analysis(profile):
     height_m = float(profile['height']) / 100
@@ -178,6 +362,30 @@ def get_recent_checkins(user_id, limit=7):
     conn.close()
     return checkins
 
+def get_consultations(user_id):
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(
+        "select * from consultations where user_id=? order by preferred_date desc, preferred_time desc, id desc",
+        (user_id,)
+    )
+    consultations = cursor.fetchall()
+    conn.close()
+    return consultations
+
+def get_orders(user_id):
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute(
+        "select * from orders where user_id=? order by created_at desc, id desc",
+        (user_id,)
+    )
+    orders = cursor.fetchall()
+    conn.close()
+    return orders
+
 def summarize_checkins(checkins):
     if not checkins:
         return None
@@ -197,6 +405,32 @@ def summarize_checkins(checkins):
         'good_food_days': good_food_days,
         'high_stress_days': high_stress_days
     }
+
+def get_support_recommendations(category, city, preferred_mode, budget):
+    city_value = (city or "").strip().lower()
+    mode_value = (preferred_mode or "").strip().lower()
+    budget_value = (budget or "").strip().lower()
+
+    results = []
+    for provider in SUPPORT_PROVIDERS:
+        if provider["category"] != category:
+            continue
+        score = 0
+        if city_value and provider["city"].lower() == city_value:
+            score += 3
+        if mode_value and provider["mode"] == mode_value:
+            score += 2
+        if budget_value and provider["budget"] == budget_value:
+            score += 1
+        candidate = dict(provider)
+        candidate["score"] = score
+        results.append(candidate)
+
+    if not results:
+        return []
+
+    results.sort(key=lambda item: item["score"], reverse=True)
+    return results[:4]
 
 def build_guidance(category, profile):
     analysis = calculate_health_analysis(profile)
@@ -588,11 +822,75 @@ def healthcheckins():
     )
 
 
-@app.route('/consultation')
+@app.route('/consultation', methods=["GET", "POST"])
 def consultation():
     if 'user_id' not in session:
         return redirect('/login')
-    return render_template('consultation.html')
+
+    profile = get_health_profile(session['user_id'])
+    if not profile:
+        return redirect('/profile-setup')
+
+    selected_category = "nutrition"
+    selected_city = ""
+    selected_pincode = ""
+    selected_mode = "offline"
+    selected_budget = "mid"
+    support_results = []
+    checkins = get_recent_checkins(session['user_id'])
+    checkin_summary = summarize_checkins(checkins)
+    action_links = build_action_links(selected_category, profile, selected_city, checkin_summary)
+
+    if request.method == "POST":
+        category = request.form["category"]
+        city = request.form.get("city", "").strip()
+        pincode = request.form.get("pincode", "").strip()
+        preferred_mode = request.form.get("preferred_mode", "offline")
+        budget = request.form.get("budget", "mid")
+        preferred_date = request.form["preferred_date"]
+        preferred_time = request.form["preferred_time"]
+        message = request.form.get("message")
+
+        conn = sqlite3.connect("database.db", timeout=10)
+        cursor = conn.cursor()
+        cursor.execute('''
+            insert into consultations (
+                user_id, category, city, pincode, preferred_mode, budget,
+                preferred_date, preferred_time, message, status, created_at
+            ) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            session['user_id'], category, city, pincode, preferred_mode, budget,
+            preferred_date, preferred_time,
+            message, 'pending', datetime.now().isoformat(timespec='seconds')
+        ))
+        conn.commit()
+        conn.close()
+        selected_category = category
+        selected_city = city
+        selected_pincode = pincode
+        selected_mode = preferred_mode
+        selected_budget = budget
+        support_results = get_support_recommendations(category, city, preferred_mode, budget)
+        action_links = build_action_links(category, profile, city, checkin_summary)
+        flash("Consultation request submitted. Here are suggested nearby/online supports you can use now.")
+
+    analysis = calculate_health_analysis(profile)
+    consultations = get_consultations(session['user_id'])
+
+    return render_template(
+        'consultation.html',
+        today=date.today().isoformat(),
+        profile=profile,
+        analysis=analysis,
+        consultations=consultations,
+        selected_category=selected_category,
+        selected_city=selected_city,
+        selected_pincode=selected_pincode,
+        selected_mode=selected_mode,
+        selected_budget=selected_budget,
+        support_results=support_results,
+        action_links=action_links
+    )
 
 @app.route('/profile')
 def profile():
@@ -617,6 +915,43 @@ def profile():
         checkin_summary=checkin_summary,
         latest_checkin=latest_checkin
     )
+
+@app.route('/create-order', methods=["POST"])
+def create_order():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    category = request.form["category"]
+    provider = request.form["provider"]
+    item_name = request.form["item_name"]
+    external_url = request.form["external_url"]
+    city = request.form.get("city", "").strip()
+    amount_estimate = request.form.get("amount_estimate")
+    amount_estimate = float(amount_estimate) if amount_estimate else None
+
+    conn = sqlite3.connect("database.db", timeout=10)
+    cursor = conn.cursor()
+    cursor.execute('''
+        insert into orders (
+            user_id, category, item_name, partner, city,
+            amount_estimate, external_url, status, created_at
+        ) values (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        session['user_id'], category, item_name, provider, city,
+        amount_estimate, external_url, 'redirected', datetime.now().isoformat(timespec='seconds')
+    ))
+    conn.commit()
+    conn.close()
+
+    return redirect(external_url)
+
+@app.route('/my-orders')
+def my_orders():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    orders = get_orders(session['user_id'])
+    return render_template('orders.html', orders=orders)
 
 @app.route('/logout')
 def logout():
