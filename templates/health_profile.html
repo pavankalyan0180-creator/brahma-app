@@ -120,7 +120,7 @@
 
 <div class="profile-page">
     <div class="profile-header">
-        <h2>Set Up Your Health Profile</h2>
+        <h2>{% if profile %}Update Your Health Profile{% else %}Set Up Your Health Profile{% endif %}</h2>
         <p>
             Tell Brahma about your body, lifestyle, habits, sleep, food pattern, and stress level.
             This profile will help the app give better nutrition, fitness, sleep, and stress guidance.
@@ -228,7 +228,7 @@
         </div>
 
         <div class="submit-area">
-            <button type="submit" class="submit-btn">Save Health Profile</button>
+            <button type="submit" class="submit-btn">{% if profile %}Update Health Profile{% else %}Save Health Profile{% endif %}</button>
         </div>
     </form>
 </div>

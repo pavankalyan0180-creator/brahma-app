@@ -565,7 +565,6 @@ def index():
     return render_template('login.html')
 
 @app.route('/register',methods=["GET","POST"])
-
 def register():
     if request.method=="POST":
         first_name=request.form["firstname"]
@@ -578,17 +577,26 @@ def register():
         
         if password != confirm_password:
             return render_template('registration.html', error="Passwords do not match")
-        conn=sqlite3.connect("database.db")
-        cursor=conn.cursor()
-        cursor.execute('''
-            insert into users (
-            firstname,lastname,username,email,phone_number,password,confirm_password
-            ) values (?,?,?,?,?,?,?)
-            ''',(first_name, last_name, username, email, phone_number, password, confirm_password))
-        conn.commit()
-        conn.close()
-        return redirect('/login')
         
+        try:
+            conn=sqlite3.connect("database.db")
+            cursor=conn.cursor()
+            cursor.execute('''
+                insert into users (
+                firstname,lastname,username,email,phone_number,password,confirm_password
+                ) values (?,?,?,?,?,?,?)
+                ''',(first_name, last_name, username, email, phone_number, password, confirm_password))
+            conn.commit()
+            conn.close()
+            return redirect('/login')
+        except sqlite3.IntegrityError as e:
+            conn.close()
+            error_msg = "This account already exists. Please use a different username, email, or phone number."
+            return render_template('registration.html', error=error_msg)
+        except Exception as e:
+            conn.close()
+            return render_template('registration.html', error="Registration failed. Please try again.")
+    
     return render_template('registration.html')
 
 @app.route('/login',methods=["GET","POST"])
@@ -691,6 +699,10 @@ def profile_setup():
     conn.close()
 
     return render_template('health_profile.html', profile=profile)
+
+@app.route('/health_profile')
+def health_profile_legacy():
+    return redirect('/profile')
 
 
 @app.route('/home')
@@ -837,9 +849,7 @@ def consultation():
     selected_mode = "offline"
     selected_budget = "mid"
     support_results = []
-    checkins = get_recent_checkins(session['user_id'])
-    checkin_summary = summarize_checkins(checkins)
-    action_links = build_action_links(selected_category, profile, selected_city, checkin_summary)
+    action_links = CATEGORY_LINKS[selected_category]
 
     if request.method == "POST":
         category = request.form["category"]
@@ -871,7 +881,7 @@ def consultation():
         selected_mode = preferred_mode
         selected_budget = budget
         support_results = get_support_recommendations(category, city, preferred_mode, budget)
-        action_links = build_action_links(category, profile, city, checkin_summary)
+        action_links = CATEGORY_LINKS.get(category, [])
         flash("Consultation request submitted. Here are suggested nearby/online supports you can use now.")
 
     analysis = calculate_health_analysis(profile)
