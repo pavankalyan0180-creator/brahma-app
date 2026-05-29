@@ -94,39 +94,47 @@
         border-bottom: 2px solid tomato;
         padding-bottom: 3px;
     }
-    .layout {
-        display: flex;
-        margin-top: 30px;
+    .welcome-strip {
+        max-width: 1100px;
+        margin: 18px auto 14px;
+        padding: 0 20px;
     }
-    .sidebar {
-        width: 200px;
-
+    .welcome-panel {
+        border: 1px solid #ccc;
+        border-left: 6px solid tomato;
+        border-radius: 8px;
+        background-color: #f9f9f9;
         padding: 20px;
-        border-radius: 5px;
-        color:white;
     }
-    .sidebar h3 {
-        margin-top: 0;
+    .welcome-panel h2 {
+        margin: 0 0 8px;
         color: #333;
-        
     }
-    .menu-btn {
+    .welcome-panel p {
+        margin: 0;
+        color: #555;
+        line-height: 1.5;
+    }
+    .focus-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 14px;
+    }
+    .focus-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: white;
+        padding: 12px;
+    }
+    .focus-card span {
         display: block;
-        margin: 10px 0;
+        color: #777;
+        font-size: 13px;
+        margin-bottom: 5px;
+    }
+    .focus-card strong {
         color: #333;
-        text-decoration: none;
-        font-weight: bold;
-    }
-    .menu-btn:hover {
-        color: tomato;
-    }
-    .main-content {
-        flex: 1;
-        padding: 20px;
-    }
-    .main-content{
-        border-radius: 5px;
-        text-align: left;
     }
     .health-container {
         display: flex;
@@ -458,6 +466,9 @@
             flex-direction: column;
             align-items: flex-start;
         }
+        .focus-grid {
+            grid-template-columns: 1fr;
+        }
     }
     @media (max-width: 520px) {
         .feature-grid {
@@ -472,18 +483,24 @@
     }
 </style>
 
-<div class="layout">
-    <div class="sidebar">
-        <h3>🏠Menu</h3>
-        <a href="/profile" class="menu-btn">👤Profile </a>
-        <a href="/healthcheckins" class="menu-btn">🗒️Health Check-ins</a>
-        <a href="/consultation" class="menu-btn">👨🏻‍⚕️Consultation</a>
-        <a href="/my-orders" class="menu-btn">🛒My Orders</a>
-
-        <a href="/logout" class="menu-btn">📴Logout</a>
-    </div>
-    <div class="main-content">
+<div class="welcome-strip">
+    <div class="welcome-panel">
         <h2>Welcome to Brahma</h2>
+        <p>Your lifestyle guardian for nutrition, activity, sleep, stress, and daily progress.</p>
+        <div class="focus-grid">
+            <div class="focus-card">
+                <span>Today Focus</span>
+                <strong>{% if analysis and analysis.suggestions %}{{ analysis.suggestions[0] }}{% else %}Complete your profile and add a check-in to start your insights.{% endif %}</strong>
+            </div>
+            <div class="focus-card">
+                <span>Quick Action</span>
+                <strong>Add your check-in now to keep recommendations accurate and updated.</strong>
+            </div>
+            <div class="focus-card">
+                <span>Consistency Rule</span>
+                <strong>Small daily habits for 7 days beat one perfect day.</strong>
+            </div>
+        </div>
     </div>
 </div>
 <div class="feature-section">

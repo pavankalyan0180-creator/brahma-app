@@ -4,6 +4,7 @@ import io
 import os
 from datetime import date, datetime
 from urllib.parse import quote_plus
+from datetime import datetime, timedelta
 app=Flask(__name__)
 
 app.secret_key='your_secret_key'
@@ -963,6 +964,12 @@ def my_orders():
     orders = get_orders(session['user_id'])
     return render_template('orders.html', orders=orders)
 
+@app.route('/about')
+def about():
+    if 'user_id' not in session:
+        return redirect('/login')
+    return render_template('about.html')
+
 @app.route('/logout')
 def logout():
     session.clear()
@@ -971,5 +978,94 @@ def logout():
 db_password = os.getenv('DB_PASSWORD')
 secret_key = os.getenv('SECRET_KEY')
 
+@app.route('/stats', methods=['GET'])
+def stats():
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect('/login')
+
+    end_date = request.args.get('end_date', datetime.today().strftime('%Y-%m-%d'))
+    start_date = request.args.get('start_date', (datetime.today() - timedelta(days=6)).strftime('%Y-%m-%d'))
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT checkin_date, sleep_hours, water_intake, exercise_minutes, mood
+        FROM daily_checkins
+        WHERE user_id = ? AND checkin_date BETWEEN ? AND ?
+        ORDER BY checkin_date ASC
+    """, (user_id, start_date, end_date))
+    rows = cursor.fetchall()
+    conn.close()
+
+    labels = [row[0] for row in rows]
+    sleep_data = [row[1] for row in rows]
+    water_data = [row[2] for row in rows]
+    exercise_data = [row[3] for row in rows]
+    mood_data_raw = [row[4] for row in rows]
+
+    # Mood aggregation for pie chart
+    from collections import Counter
+    mood_counter = Counter(mood_data_raw)
+    mood_labels = list(mood_counter.keys())
+    mood_data = list(mood_counter.values())
+
+    # Insights (simple examples)
+    sleep_insight = f"Average sleep: {sum(sleep_data)/len(sleep_data):.1f} hrs" if sleep_data else "No data"
+    water_insight = f"Average water intake: {sum(water_data)/len(water_data):.1f} L" if water_data else "No data"
+    exercise_insight = f"Average exercise: {sum(exercise_data)/len(exercise_data):.1f} min" if exercise_data else "No data"
+    mood_insight = f"Most common mood: {mood_labels[mood_data.index(max(mood_data))]}" if mood_data else "No data"
+
+    avg_sleep_value = round(sum(sleep_data) / len(sleep_data), 1) if sleep_data else 0
+    avg_water_value = round(sum(water_data) / len(water_data), 1) if water_data else 0
+    avg_exercise_value = round(sum(exercise_data) / len(exercise_data), 1) if exercise_data else 0
+
+    if sleep_data:
+        consistency_days = sum(1 for value in sleep_data if 7 <= value <= 9)
+        sleep_consistency = round((consistency_days / len(sleep_data)) * 100)
+    else:
+        sleep_consistency = 0
+
+    wellness_suggestions = []
+    if not rows:
+        wellness_suggestions.append("No check-ins found in this date range. Start with one daily check-in for 7 days.")
+    else:
+        if avg_sleep_value < 7:
+            wellness_suggestions.append("Increase sleep by 30 minutes this week. Target 7 to 8 hours with fixed bedtime.")
+        if avg_water_value < 2.5:
+            wellness_suggestions.append("Improve hydration: keep a visible water bottle and target 2.5 to 3.0 liters daily.")
+        if avg_exercise_value < 30:
+            wellness_suggestions.append("Add at least 30 minutes of movement on most days. Walking counts.")
+        if mood_data:
+            top_mood = mood_labels[mood_data.index(max(mood_data))]
+            if top_mood in ["stressed", "sad", "tired", "anxious"]:
+                wellness_suggestions.append("Your mood trend needs support: use short breathing breaks and reduce late-night screen use.")
+        if not wellness_suggestions:
+            wellness_suggestions.append("Great consistency. Maintain your routine and improve one small habit this week.")
+
+    return render_template(
+        'stats.html',
+        labels=labels,
+        sleep_data=sleep_data,
+        water_data=water_data,
+        exercise_data=exercise_data,
+        mood_labels=mood_labels,
+        mood_data=mood_data,
+        sleep_insight=sleep_insight,
+        water_insight=water_insight,
+        exercise_insight=exercise_insight,
+        mood_insight=mood_insight,
+        avg_sleep_value=avg_sleep_value,
+        avg_water_value=avg_water_value,
+        avg_exercise_value=avg_exercise_value,
+        sleep_consistency=sleep_consistency,
+        total_days=len(labels),
+        wellness_suggestions=wellness_suggestions,
+        start_date=start_date,
+        end_date=end_date
+    )
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0",port=5000)
+
+

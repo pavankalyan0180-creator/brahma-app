@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brahma</title>
     <style>
+            body {
+                margin: 0;
+                background-color: #ffffff;
+            }
             .logo {
                 display: flex;
                 text-align: left;
@@ -65,6 +69,42 @@
             .top-nav a:hover {
                 color: tomato;
             }
+            .app-layout {
+                display: flex;
+                min-height: calc(100vh - 120px);
+            }
+            .global-sidebar {
+                width: 220px;
+                padding: 20px 16px;
+            }
+            .global-sidebar h3 {
+                margin: 0 0 12px;
+                color: #333;
+            }
+            .global-menu-btn {
+                display: block;
+                margin: 9px 0;
+                color: #333;
+                text-decoration: none;
+                font-weight: bold;
+            }
+            .global-menu-btn:hover {
+                color: tomato;
+            }
+            .page-content {
+                flex: 1;
+                min-width: 0;
+            }
+            @media (max-width: 900px) {
+                .app-layout {
+                    display: block;
+                }
+                .global-sidebar {
+                    width: auto;
+                    border-bottom: 1px solid #eee;
+                    padding: 14px 16px 8px;
+                }
+            }
     </style>
 </head>
 <body>
@@ -75,8 +115,29 @@
         <p class="tagline"> The Chaturmukha</p>
         </div>
     </div>
+    {% if session.get('user_id') %}
+    <div class="app-layout">
+        <aside class="global-sidebar">
+            <h3>🏠 Menu</h3>
+            <a href="/home" class="global-menu-btn">🏡 Home</a>
+            <a href="/profile" class="global-menu-btn">👤 Profile</a>
+            <a href="/healthcheckins" class="global-menu-btn">🗒️ Health Check-ins</a>
+            <a href="/stats" class="global-menu-btn">📈 Health Stats</a>
+            <a href="/consultation" class="global-menu-btn">👨🏻‍⚕️ Consultation</a>
+            <a href="/my-orders" class="global-menu-btn">🛒 My Orders</a>
+            <a href="/about" class="global-menu-btn">ℹ️ About</a>
+            <a href="/logout" class="global-menu-btn">📴 Logout</a>
+        </aside>
+        <main class="page-content">
+    {% endif %}
+
     {% block content %}
     {% endblock %}
+
+    {% if session.get('user_id') %}
+        </main>
+    </div>
+    {% endif %}
   
 </body>
 </html>
